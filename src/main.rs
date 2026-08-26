@@ -1,17 +1,17 @@
 use std::sync::Mutex;
 
 use crate::{
-    routes::{sign_in, sign_up},
+    routes::user::{sign_in, sign_up},
     types::user::User,
 };
 use actix_web::{App, HttpServer, web};
 
-mod routes;
-mod types;
+pub mod routes;
+pub mod types;
 
 struct AppState {
-    user_index: Mutex<u32>,
     users: Mutex<Vec<User>>,
+    user_index: Mutex<u32>,
 }
 
 #[actix_web::main]
@@ -21,9 +21,9 @@ async fn main() -> std::io::Result<()> {
         user_index: Mutex::new(0),
     });
 
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         App::new()
-            .app_data(app_state)
+            .app_data(app_state.clone())
             .service(sign_in)
             .service(sign_up)
     })
