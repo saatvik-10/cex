@@ -24,6 +24,6 @@ pub struct SignInRes {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct SignOutRes {
+pub struct SignUpRes {
     pub msg: String,
 }
