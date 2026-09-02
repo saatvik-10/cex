@@ -4,5 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "bash ./scripts/test.sh"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.0"
   }
 }
