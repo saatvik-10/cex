@@ -1,0 +1,8 @@
+{
+  "name": "cex-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "bash ./scripts/test.sh"
+  }
+}
