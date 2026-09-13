@@ -21,6 +21,10 @@ pub struct AppConfig {
     /// Lifetime of a refresh token, in seconds.
     pub refresh_ttl_seconds: i64,
     pub port: u16,
+    /// Path to the balance write-ahead log.
+    pub wal_path: String,
+    /// How often the balance worker fsyncs the WAL and checkpoints to Postgres.
+    pub balance_flush_interval_ms: u64,
 }
 
 impl AppConfig {
@@ -50,12 +54,25 @@ impl AppConfig {
             .parse()
             .unwrap_or(8000);
 
+        let wal_path = env::var("WAL_PATH").unwrap_or_else(|_| "wal.log".into());
+
+        let balance_flush_interval_ms: u64 =
+            env::var("BALANCE_FLUSH_INTERVAL_MS")
+                .unwrap_or_else(|_| "100".into())
+                .parse::<u64>()
+                .map_err(|e: std::num::ParseIntError| ConfigError::InvalidEnv {
+                    key: "BALANCE_FLUSH_INTERVAL_MS".into(),
+                    value: e.to_string(),
+                })?;
+
         Ok(Self {
             database_url,
             jwt_secret,
             access_ttl_seconds: access_ttl_minutes * 60,
             refresh_ttl_seconds: refresh_ttl_days * 24 * 60 * 60,
             port,
+            wal_path,
+            balance_flush_interval_ms,
         })
     }
 
