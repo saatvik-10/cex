@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { balance, onramp, signup } from "./client";
+import { balance, deposit, signup } from "./client";
 
 const PASSWORD = "integration-123";
 
@@ -19,12 +19,12 @@ describe("wallet flow", () => {
     expect(byAsset).toEqual({ USD: "0", SOL: "0", ETH: "0" });
   });
 
-  test("onramp credits the balance and is reflected on read", async () => {
-    const username = uniqueUser("onramp");
+  test("deposit credits the balance and is reflected on read", async () => {
+    const username = uniqueUser("deposit");
     const { json } = await signup(username, PASSWORD);
     const token = json.access_token;
 
-    const credit = await onramp(token, "USD", "100");
+    const credit = await deposit(token, "USD", "100");
     expect(credit.status).toBe(200);
     expect(credit.json.asset).toBe("USD");
 
@@ -33,13 +33,13 @@ describe("wallet flow", () => {
     expect(usd?.amount).toBe("100.000000000000000000");
   });
 
-  test("onramp accumulates across multiple credits", async () => {
+  test("deposit accumulates across multiple credits", async () => {
     const username = uniqueUser("accum");
     const { json } = await signup(username, PASSWORD);
     const token = json.access_token;
 
-    await onramp(token, "SOL", "1.5");
-    const second = await onramp(token, "SOL", "0.5");
+    await deposit(token, "SOL", "1.5");
+    const second = await deposit(token, "SOL", "0.5");
 
     expect(second.status).toBe(200);
     expect(second.json.amount).toBe("2.000000000000000000");
@@ -49,17 +49,17 @@ describe("wallet flow", () => {
     expect(sol?.amount).toBe("2.000000000000000000");
   });
 
-  test("onramp rejects a non-positive amount", async () => {
+  test("deposit rejects a non-positive amount", async () => {
     const username = uniqueUser("reject");
     const { json } = await signup(username, PASSWORD);
     const token = json.access_token;
 
-    const { status } = await onramp(token, "USD", "-5");
+    const { status } = await deposit(token, "USD", "-5");
     expect(status).toBe(400);
   });
 
-  test("onramp without a token is unauthorized", async () => {
-    const { status } = await onramp("bad-token", "USD", "10");
+  test("deposit without a token is unauthorized", async () => {
+    const { status } = await deposit("bad-token", "USD", "10");
     expect(status).toBe(401);
   });
 });
