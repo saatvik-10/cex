@@ -1,11 +1,8 @@
 use bigdecimal::BigDecimal;
 use serde::{Deserialize, Serialize};
 
-use crate::engine::types::Asset;
-
 #[derive(Debug, Deserialize)]
-pub struct OnrampInput {
-    pub asset: Asset,
+pub struct DepositInput {
     /// Amount to credit. Must be positive.
     pub amount: BigDecimal,
 }
