@@ -12,7 +12,10 @@ pub fn config(cfg: &mut web::ServiceConfig) {
     )
     .service(
         web::scope("/wallet")
-            .service(wallet::get_balance)
-            .service(wallet::onramp),
+            .service(wallet::get_balance),
+    )
+    .service(
+        web::scope("/deposit")
+            .service(wallet::deposit),
     );
 }
