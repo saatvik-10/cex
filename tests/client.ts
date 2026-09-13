@@ -55,11 +55,11 @@ export async function balance(accessToken: string) {
   );
 }
 
-export async function onramp(accessToken: string, asset: string, amount: string) {
+export async function deposit(accessToken: string, asset: string, amount: string) {
   return request<{ asset: string; amount: string }>(
     "POST",
-    "/wallet/onramp",
-    { asset, amount },
+    `/deposit/${asset}`,
+    { amount },
     accessToken,
   );
 }
