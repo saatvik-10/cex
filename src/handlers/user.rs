@@ -6,7 +6,6 @@ use crate::{
     AppState,
     auth::{issue::issue_tokens, jwt, password, refresh},
     db::{query, store},
-    engine::types::Asset,
     error::{ApiResult, AppError},
     types::user::{SignInInput, SignUpInput, UserSummary},
 };
@@ -48,13 +47,8 @@ pub async fn sign_up(
     };
     query::seed_balances(&mut conn, user.id).await?;
 
-    // Keep the in-memory caches in sync with the write.
+    // Keep the in-memory user cache in sync with the write.
     state.users.insert(user.username.clone(), user.id);
-    for asset in Asset::ALL {
-        state
-            .balances
-            .insert((user.id, asset), bigdecimal::BigDecimal::from(0));
-    }
 
     let summary = UserSummary {
         id: user.id,
