@@ -1,0 +1,1 @@
+export const SUPPORTED_ASSETS = ["USD", "SOL", "ETH"] as const;
