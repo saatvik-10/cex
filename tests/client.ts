@@ -12,7 +12,9 @@ async function request<T = unknown>(
   body?: unknown,
   token?: string,
 ): Promise<{ status: number; json: T }> {
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(`${BASE}${path}`, {
@@ -39,11 +41,18 @@ export async function signin(username: string, password: string) {
 }
 
 export async function refresh(refreshToken: string) {
-  return request<AuthTokens>("POST", "/auth/refresh", { refresh_token: refreshToken });
+  return request<AuthTokens>("POST", "/auth/refresh", {
+    refresh_token: refreshToken,
+  });
 }
 
 export async function profile(accessToken: string) {
-  return request<{ id: string; username: string }>("GET", "/auth/profile", undefined, accessToken);
+  return request<{ id: string; username: string }>(
+    "GET",
+    "/auth/profile",
+    undefined,
+    accessToken,
+  );
 }
 
 export async function balance(accessToken: string) {
@@ -55,7 +64,11 @@ export async function balance(accessToken: string) {
   );
 }
 
-export async function deposit(accessToken: string, asset: string, amount: string) {
+export async function deposit(
+  accessToken: string,
+  asset: string,
+  amount: string,
+) {
   return request<{ asset: string; amount: string }>(
     "POST",
     `/deposit/${asset}`,

@@ -8,15 +8,21 @@ function uniqueUser(prefix: string) {
 }
 
 describe("wallet flow", () => {
-  test("new user starts with zero balances across all assets", async () => {
+  test("new user starts with the demo basket across all assets", async () => {
     const username = uniqueUser("wallet");
     const { json } = await signup(username, PASSWORD);
 
     const { status, json: b } = await balance(json.access_token);
     expect(status).toBe(200);
 
-    const byAsset = Object.fromEntries(b.balances.map((e) => [e.asset, e.amount]));
-    expect(byAsset).toEqual({ USD: "0", SOL: "0", ETH: "0" });
+    const byAsset = Object.fromEntries(
+      b.balances.map((e) => [e.asset, e.amount]),
+    );
+    expect(byAsset).toEqual({
+      USD: "10000.000000000000000000",
+      SOL: "10.000000000000000000",
+      ETH: "5.000000000000000000",
+    });
   });
 
   test("deposit credits the balance and is reflected on read", async () => {
@@ -30,7 +36,7 @@ describe("wallet flow", () => {
 
     const { json: b } = await balance(token);
     const usd = b.balances.find((e) => e.asset === "USD");
-    expect(usd?.amount).toBe("100.000000000000000000");
+    expect(usd?.amount).toBe("10100.000000000000000000");
   });
 
   test("deposit accumulates across multiple credits", async () => {
@@ -42,11 +48,11 @@ describe("wallet flow", () => {
     const second = await deposit(token, "SOL", "0.5");
 
     expect(second.status).toBe(200);
-    expect(second.json.amount).toBe("2.000000000000000000");
+    expect(second.json.amount).toBe("12.000000000000000000");
 
     const { json: b } = await balance(token);
     const sol = b.balances.find((e) => e.asset === "SOL");
-    expect(sol?.amount).toBe("2.000000000000000000");
+    expect(sol?.amount).toBe("12.000000000000000000");
   });
 
   test("deposit rejects a non-positive amount", async () => {
