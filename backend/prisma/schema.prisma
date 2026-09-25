@@ -1,0 +1,60 @@
+// Single source of truth for the CEX schema. Prisma owns all migrations; the
+// Rust engine connects directly and does NOT run its own DDL.
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username      String         @unique @db.VarChar(255)
+  passwordHash  String         @map("password_hash") @db.Text
+  isDemo        Boolean        @default(true) @map("is_demo")
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  balances      Balance[]
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  tokenHash String   @map("token_hash") @db.Text
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+  revoked   Boolean  @default(false) @map("revoked")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Balance {
+  id     String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String  @map("user_id") @db.Uuid
+  asset  String  @db.VarChar(16)
+  source String  @default("DEMO") @map("source") @db.VarChar(16)
+  amount Decimal @default(0) @db.Decimal(36, 18)
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, asset, source])
+  @@index([userId])
+  @@map("balances")
+}
+
+// Written only by the engine checkpoint (atomically with `balances`). Kept in
+// the schema so it is created on fresh databases and visible for introspection;
+// the backend never touches these rows.
+model IdempotencyKey {
+  userId    String   @map("user_id") @db.Uuid
+  key       String   @db.VarChar(255)
+  amount    Decimal  @db.Decimal(36, 18)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([userId, key])
+  @@map("idempotency_keys")
+}
