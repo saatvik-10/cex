@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: cex-pg
+    environment:
+      POSTGRES_USER: cex
+      POSTGRES_PASSWORD: cex
+      POSTGRES_DB: cex
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+  redis:
+    image: redis:7
+    container_name: cex-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+volumes:
+  pgdata:
+  redisdata:

@@ -1,6 +1,0 @@
-{
-  "compilerOptions": {
-    "types": ["bun"],
-    "moduleResolution": "bundler"
-  }
-}   
